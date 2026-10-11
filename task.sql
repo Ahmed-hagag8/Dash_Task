@@ -46,7 +46,7 @@ SELECT * FROM `products` ORDER BY `MSRP` DESC LIMIT 5;
 #part2 Q21
 SELECT * FROM `orders` WHERE `shippedDate`>`requiredDate`;
 #part2 Q22
-
+-----------------------------------------------------------------------------------------------------
 #part3 Q23
 SELECT country, COUNT(*) FROM customers GROUP BY `country` Order BY COUNT(*) DESC;;
 #part3 Q24
@@ -67,7 +67,9 @@ SELECT orderNumber,SUM(`quantityOrdered`*`priceEach`) FROM orderdetails GROUP BY
 SELECT orderNumber,(`quantityOrdered`*`priceEach`) as finalprice FROM orderdetails GROUP BY finalprice DESC;
 #part3 Q32
 SELECT COUNT(*) as number_of_orders,month(orderDate) from orders WHERE orderDate LIKE '%2004%' GROUP BY month(orderDate);
+----------------------------------------------------------------------------------------------------------------------------------
 #part4 Q33
+SELECT Customers.customerName, Orders.orderNumber FROM customers LEFT JOIN orders ON customers.customerNumber = Orders.customerNumber ORDER BY Customers.customerName;
 
 
 
