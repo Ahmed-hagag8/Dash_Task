@@ -86,11 +86,18 @@ SELECT CONCAT(employees.firstName, ' ', employees.lastName) AS Name, employees.r
 #part4 Q41
 SELECT customers.customerName, payments.amount FROM payments LEFT JOIN customers ON customers.customerNumber= payments.customerNumber ORDER BY payments.amount DESC LIMIT 10;
 #part4 Q42
-
+SELECT e.employeeNumber, CONCAT(e.firstName, ' ', e.lastName) AS salesRep, SUM(od.quantityOrdered * od.priceEach) AS totalSales FROM employees e JOIN customers c ON c.salesRepEmployeeNumber = e.employeeNumber JOIN orders o ON o.customerNumber = c.customerNumber JOIN orderdetails od ON od.orderNumber = o.orderNumber GROUP BY e.employeeNumber, salesRep ORDER BY totalSales DESC;
 #part4 Q43
-
+SELECT 
+    p.productCode,
+    p.productName,
+    IFNULL(SUM(od.quantityOrdered), 0) AS totalQuantitySold
+FROM products p
+LEFT JOIN orderdetails od ON od.productCode = p.productCode
+GROUP BY p.productCode, p.productName
+ORDER BY totalQuantitySold DESC;
 #part4 Q44
-
+SELECT off.city, SUM(od.quantityOrdered * od.priceEach) AS totalSales FROM offices off JOIN employees e ON e.officeCode = off.officeCode JOIN customers c ON c.salesRepEmployeeNumber = e.employeeNumber JOIN orders o ON o.customerNumber = c.customerNumber JOIN orderdetails od ON od.orderNumber = o.orderNumber GROUP BY off.city ORDER BY totalSales DESC;
 #part5 Q45
 SELECT productName, buyPrice FROM products WHERE buyPrice > (SELECT AVG(buyPrice) FROM products);
 #part5 Q46
