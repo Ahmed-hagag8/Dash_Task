@@ -92,16 +92,66 @@ SELECT customers.customerName, payments.amount FROM payments LEFT JOIN customers
 #part4 Q44
 
 #part5 Q45
+SELECT productName, buyPrice FROM products WHERE buyPrice > (SELECT AVG(buyPrice) FROM products);
+#part5 Q46
+SELECT c1.customerName, c1.country, c1.creditLimit FROM customers c1 WHERE c1.creditLimit > ( SELECT AVG(c2.creditLimit) FROM customers c2 WHERE c2.country = c1.country );
+#part5 Q47
+SELECT customerName, creditLimit FROM customers WHERE creditLimit > 100000;
+#part5 Q48
+SELECT customers.customerName, orders.status FROM customers, orders WHERE orders.status = 'cancelled';
+#part5 Q49
+SELECT customers.customerName , payments.amount FROM customers, payments WHERE payments.amount = (SELECT MAX(payments.amount) FROM payments);
+#part5 Q50
+SELECT CONCAT(e.firstName, ' ', e.lastName) AS employee_name FROM employees e LEFT JOIN customers c ON e.employeeNumber = c.salesRepEmployeeNumber WHERE c.salesRepEmployeeNumber IS NULL;
+#part5 Q51
+SELECT orders.orderNumber, (orderdetails.quantityOrdered * orderdetails.priceEach) AS line_total
+FROM orders
+JOIN orderdetails ON orders.orderNumber = orderdetails.orderNumber
+WHERE (orderdetails.quantityOrdered * orderdetails.priceEach) = (
+    SELECT AVG(orderdetails.quantityOrdered * orderdetails.priceEach) 
+    FROM orderdetails
+);
 
+part5 Q52
+SELECT 
+    c.customerName,
+    COALESCE(o_sum.total_ordered_value, 0) AS totalvalue,
+    COALESCE(p_sum.total_paid, 0) AS totalpaid,
+    (COALESCE(p_sum.total_paid, 0) - COALESCE(o_sum.total_ordered_value, 0)) AS diff
+FROM customers c
+LEFT JOIN (
+    SELECT 
+        o.customerNumber, 
+        SUM(od.quantityOrdered * od.priceEach) AS total_ordered_value
+    FROM orders o
+    JOIN orderdetails od ON o.orderNumber = od.orderNumber
+    GROUP BY o.customerNumber
+) o_sum ON c.customerNumber = o_sum.customerNumber
+LEFT JOIN (
+    SELECT 
+        customerNumber, 
+        SUM(amount) AS total_paid
+    FROM payments
+    GROUP BY customerNumber
+) p_sum ON c.customerNumber = p_sum.customerNumber; -------GI
 
-
-
-
-
-
-
-
-
+#part6 Q53
+  Insert Into `productslines` (`productLine`, `TextDescription`) Value ('Electric cars','Remac is one of the most dynamic cars')
+#part6 Q54
+INSERT INTO `products` (`productCode`, `productName`, `productLine`, `productScale`, `productVendor`, `productDescription`, `quantityInStock`, `buyPrice`, `MSRP`) VALUES ('0001', 'Rimac', 'Electric Cars', '2021', 'elbatal', 'sport', '10', '257000', '10000'), ('0002', 'tesla', 'Electric Cars', '2024', 'elgalad', 'luxery', '50', '12000', '20000');
+#part6 Q55
+INSERT INTO `customers` (`customerNumber`, `customerName`, `contactLastName`, `contactFirstName`, `phone`, `addressLine1`, `addressLine2`, `city`, `state`, `postalCode`, `country`, `salesRepEmployeeNumber`, `creditLimit`) VALUES ('007', 'Elbatal', 'hagag', 'Ahmed', '010258759663', 'maadi', NULL, 'cairo', NULL, NULL, 'Egypt', NULL, NULL);
+#part6 Q56
+INSERT INTO `orders` (`orderNumber`, `orderDate`, `requiredDate`, `shippedDate`, `status`, `comments`, `customerNumber`) VALUES ('555555', '2026-10-12', '2026-10-20', NULL, 'In_progress', NULL, '007');
+#part6 Q57
+UPDATE products SET MSRP = MSRP * 1.10 WHERE productLine = 'Electric Cars';
+#part6 Q58
+UPDATE `customers` SET `phone` = '010258759999', `creditLimit` = '100000' WHERE `customers`.`customerNumber` = 7;
+#part6 Q59
+UPDATE `orders` SET `shippedDate` = '2026-10-12', `status` = 'shipped' WHERE `orders`.`orderNumber` = 555555;
+#part6 Q60
+UPDATE `products` SET `quantityInStock` = `quantityInStock`-10 WHERE `productLine` != 'Electric cars';
+#part6 Q61
 
 
 
