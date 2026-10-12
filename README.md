@@ -1,2 +1,2 @@
 # UG_trainee
-Union Group internship repo
+Notes about every Q
