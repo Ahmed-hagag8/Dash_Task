@@ -18,8 +18,7 @@ SELECT COUNT(*) FROM products;
 SELECT COUNT(*) FROM orders;
 -------------------------------------------------------------------------------------------------
 #part2 Q9
-SELECT * FROM `customers` WHERE `country`= "France"
-ORDER BY `creditLimit`DESC
+SELECT * FROM `customers` WHERE `country`= "France" ORDER BY `creditLimit`DESC
 #part2 Q10
 SELECT * FROM `products` WHERE `quantityInStock`< 1000 ORDER BY `quantityInStock`ASC;
 #part2 Q11
@@ -70,11 +69,29 @@ SELECT COUNT(*) as number_of_orders,month(orderDate) from orders WHERE orderDate
 ----------------------------------------------------------------------------------------------------------------------------------
 #part4 Q33
 SELECT Customers.customerName, Orders.orderNumber FROM customers LEFT JOIN orders ON customers.customerNumber = Orders.customerNumber ORDER BY Customers.customerName;
+#part4 Q34
+SELECT c.customerName, CONCAT(e.firstName, ' ', e.lastName) AS salesRepName FROM customers c LEFT JOIN employees e ON c.salesRepEmployeeNumber = e.employeeNumber GROUP BY customerName; ------?
+#part4 Q35
+SELECT CONCAT(employees.firstName+ ' '+employees.lastName) AS employee_name, CONCAT(offices.city+', '+offices.country) AS Location FROM employees LEFT JOIN offices ON employees.officeCode=offices.officeCode;  #concat problem -> solved
+#part4 Q36
+SELECT products.productName, orderdetails.quantityOrdered, orderdetails.priceEach, (orderdetails.quantityOrdered*orderdetails.priceEach) AS total FROM orderdetails, products, orders WHERE orders.orderNumber=10100; #??????
+#part4 Q37
+SELECT products.productName, productlines.textDescription FROM productlines LEFT JOIN products ON products.productLine=productlines.productLine GROUP BY products.productName;
+#part4 Q38
+SELECT customers.customerNumber, COUNT(orders.orderNumber) AS orderNumber FROM orders LEFT JOIN customers ON customers.customerNumber=orders.customerNumber GROUP BY customerNumber;
+#part4 Q39
+SELECT customers.customerNumber, COUNT(orders.orderNumber) AS ordercount FROM orders LEFT JOIN customers ON customers.customerNumber=orders.customerNumber WHERE ordercount = 0: #??????
+#part4 Q40
+SELECT CONCAT(employees.firstName, ' ', employees.lastName) AS Name, employees.reportsTo FROM employees ORDER BY Name; #retrieve manager name
+#part4 Q41
+SELECT customers.customerName, payments.amount FROM payments LEFT JOIN customers ON customers.customerNumber= payments.customerNumber ORDER BY payments.amount DESC LIMIT 10;
+#part4 Q42
 
+#part4 Q43
 
+#part4 Q44
 
-
-
+#part5 Q45
 
 
 
