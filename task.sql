@@ -159,7 +159,9 @@ UPDATE `orders` SET `shippedDate` = '2026-10-12', `status` = 'shipped' WHERE `or
 #part6 Q60
 UPDATE `products` SET `quantityInStock` = `quantityInStock`-10 WHERE `productLine` != 'Electric cars';
 #part6 Q61
-
+DELETE od.orderLineNumber FROM orderdetails od WHERE od.orderLineNumber=0070;
+DELETE * FROM orders, orderdetails WHERE orders.orderNumber = orderdetails.orderNumber;
+#part6 Q62
 
 
 
