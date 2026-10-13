@@ -49,7 +49,9 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($orders as $order)
                         <tr class="text-slate-700">
-                            <td class="px-5 py-4 font-medium text-slate-900 sm:px-6">#{{ $order->id }}</td>
+                            <td class="px-5 py-4 font-medium text-slate-900 sm:px-6">
+                                <a href="{{ route('admin.orders.show', $order) }}">{{ $order->order_number }}</a>
+                            </td>
                             <td class="px-5 py-4"><x-admin.status-badge :status="$order->status" /></td>
                             <td class="px-5 py-4 text-right tabular-nums">{{ number_format($order->total, 2) }}</td>
                             <td class="px-5 py-4">{{ $order->date->format('d M Y') }}</td>

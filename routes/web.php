@@ -32,6 +32,7 @@ Route::middleware('auth')
         Route::resource('categories', CategoryController::class)->except('show');
         Route::resource('products', ProductController::class)->except('show');
         Route::resource('customers', CustomerController::class);
-        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::resource('orders', OrderController::class)->only(['index', 'create', 'store', 'show']);
+        Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     });

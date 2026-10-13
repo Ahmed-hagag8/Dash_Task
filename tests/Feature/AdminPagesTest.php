@@ -76,7 +76,7 @@ it('renders the admin pages with their database data', function () {
 
     $this->get(route('admin.orders.index'))
         ->assertOk()
-        ->assertSeeText('#'.$order->id)
+        ->assertSeeText($order->order_number)
         ->assertSeeText('Sam Customer')
         ->assertSeeText('01 Oct 2026');
 

@@ -21,6 +21,7 @@ class OrderItemFactory extends Factory
             'product_id' => Product::factory(),
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
+            'line_total' => number_format($quantity * $unitPrice, 2, '.', ''),
         ];
     }
 }
