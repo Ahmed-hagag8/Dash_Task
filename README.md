@@ -23,4 +23,11 @@ mysql for the DB
 ## run the project 
 php artisan serve
 
-##
+## Step 2
+
+php artisan make:model Category -mf
+php artisan make:model Product -mf
+php artisan make:model Customer -mf
+php artisan make:model Order -mf
+php artisan make:model OrderItem -mf
+php artisan make:migration create_reports_table
