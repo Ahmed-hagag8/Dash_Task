@@ -13,6 +13,14 @@
     </div>
 
     <div>
+        <label for="sku">SKU</label>
+        <input id="sku" name="sku" type="text" value="{{ old('sku', $product->sku) }}" maxlength="100" required>
+        @error('sku')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <div>
         <label for="description">Description</label>
         <textarea id="description" name="description" rows="4" maxlength="5000">{{ old('description', $product->description) }}</textarea>
         @error('description')
@@ -26,7 +34,7 @@
             <option value="">Select a category</option>
             @foreach ($categories as $category)
                 <option value="{{ $category->id }}" @selected((string) old('category_id', $product->category_id) === (string) $category->id)>
-                    {{ $category->name }}
+                {{ $category->name }}{{ ! $category->is_active ? ' (inactive - current category)' : '' }}
                 </option>
             @endforeach
         </select>
@@ -38,7 +46,7 @@
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
             <label for="price">Price</label>
-            <input id="price" name="price" type="number" min="0" step="0.01" value="{{ old('price', $product->price) }}" required>
+            <input id="price" name="price" type="number" min="0.01" step="0.01" value="{{ old('price', $product->price) }}" required>
             @error('price')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror

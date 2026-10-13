@@ -19,8 +19,16 @@
             <label for="category-search">Search categories</label>
             <input id="category-search" name="search" type="search" value="{{ $search }}" placeholder="Category name">
         </div>
+        <div>
+            <label for="category-status-filter">Status</label>
+            <select id="category-status-filter" name="status">
+                <option value="">All statuses</option>
+                <option value="active" @selected($status === 'active')>Active</option>
+                <option value="inactive" @selected($status === 'inactive')>Inactive</option>
+            </select>
+        </div>
         <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white">Search</button>
-        @if ($search !== '')
+        @if ($search !== '' || $status !== '')
             <a href="{{ route('admin.categories.index') }}">Clear</a>
         @endif
     </form>
@@ -31,6 +39,7 @@
                 <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                     <tr>
                         <th scope="col" class="px-5 py-3 font-medium sm:px-6">Category</th>
+                        <th scope="col" class="px-5 py-3 font-medium">Status</th>
                         <th scope="col" class="px-5 py-3 font-medium">Products</th>
                         <th scope="col" class="px-5 py-3 font-medium">Created</th>
                         <th scope="col" class="px-5 py-3 font-medium">Actions</th>
@@ -40,6 +49,7 @@
                     @forelse ($categories as $category)
                         <tr class="text-slate-700">
                             <td class="px-5 py-4 font-medium text-slate-900 sm:px-6">{{ $category->name }}</td>
+                            <td class="px-5 py-4"><x-admin.status-badge :status="$category->is_active ? 'Active' : 'Inactive'" /></td>
                             <td class="px-5 py-4">{{ number_format($category->products_count) }}</td>
                             <td class="whitespace-nowrap px-5 py-4">{{ $category->created_at->format('d M Y') }}</td>
                             <td class="px-5 py-4">
@@ -59,7 +69,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-5 py-12 text-center sm:px-6">
+                            <td colspan="5" class="px-5 py-12 text-center sm:px-6">
                                 <p class="font-medium text-slate-700">No categories yet</p>
                                 <p class="mt-1 text-sm text-slate-500">Categories will appear here once they are added.</p>
                             </td>

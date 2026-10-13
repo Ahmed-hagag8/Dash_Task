@@ -15,15 +15,18 @@ class CategoryController extends Controller
     public function index(Request $request): View
     {
         $search = $request->string('search')->trim()->toString();
+        $status = $request->string('status')->toString();
+        $status = in_array($status, ['active', 'inactive'], true) ? $status : '';
 
         $categories = Category::query()
             ->withCount('products')
             ->when($search !== '', fn ($query) => $query->where('name', 'like', '%'.$search.'%'))
+            ->when($status !== '', fn ($query) => $query->where('is_active', $status === 'active'))
             ->orderBy('name')
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.categories.index', compact('categories', 'search'));
+        return view('admin.categories.index', compact('categories', 'search', 'status'));
     }
 
     public function create(): View

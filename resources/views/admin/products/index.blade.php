@@ -17,12 +17,35 @@
     <form method="GET" action="{{ route('admin.products.index') }}" class="mb-4 flex flex-wrap items-end gap-3">
         <div class="min-w-0 flex-1">
             <label for="product-search">Search products</label>
-            <input id="product-search" name="search" type="search" value="{{ $search }}" placeholder="Product name">
+            <input id="product-search" name="search" type="search" value="{{ $search }}" placeholder="Product name or SKU">
         </div>
-        <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white">Search</button>
-        @if ($search !== '')
-            <a href="{{ route('admin.products.index') }}">Clear</a>
-        @endif
+        <div>
+            <label for="category-filter">Category</label>
+            <select id="category-filter" name="category_id">
+                <option value="">All categories</option>
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}" @selected($categoryId === $category->id)>{{ $category->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label for="status-filter">Status</label>
+            <select id="status-filter" name="status">
+                <option value="">All statuses</option>
+                <option value="active" @selected($status === 'active')>Active</option>
+                <option value="inactive" @selected($status === 'inactive')>Inactive</option>
+            </select>
+        </div>
+        <label class="flex items-center gap-2">
+            <input type="checkbox" name="out_of_stock" value="1" @checked($outOfStock)>
+            <span>Out of stock</span>
+        </label>
+        <div class="flex flex-wrap items-center gap-3">
+            <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white">Apply filters</button>
+            @if ($search !== '' || $categoryId > 0 || $status !== '' || $outOfStock)
+                <a href="{{ route('admin.products.index') }}">Clear filters</a>
+            @endif
+        </div>
     </form>
 
     <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -31,6 +54,7 @@
                 <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                     <tr>
                         <th scope="col" class="px-5 py-3 font-medium sm:px-6">Product</th>
+                        <th scope="col" class="px-5 py-3 font-medium">SKU</th>
                         <th scope="col" class="px-5 py-3 font-medium">Category</th>
                         <th scope="col" class="px-5 py-3 text-right font-medium">Price</th>
                         <th scope="col" class="px-5 py-3 text-right font-medium">Stock</th>
@@ -47,6 +71,7 @@
                                     <span class="mt-1 block max-w-xs truncate text-xs font-normal text-slate-500">{{ $product->description }}</span>
                                 @endif
                             </td>
+                            <td class="whitespace-nowrap px-5 py-4 font-mono text-xs">{{ $product->sku }}</td>
                             <td class="whitespace-nowrap px-5 py-4">{{ $product->category->name }}</td>
                             <td class="whitespace-nowrap px-5 py-4 text-right tabular-nums">{{ number_format($product->price, 2) }}</td>
                             <td class="whitespace-nowrap px-5 py-4 text-right tabular-nums">{{ number_format($product->stock) }}</td>
@@ -70,7 +95,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-12 text-center sm:px-6">
+                            <td colspan="7" class="px-5 py-12 text-center sm:px-6">
                                 <p class="font-medium text-slate-700">No products yet</p>
                                 <p class="mt-1 text-sm text-slate-500">Products will appear here once they are added to your catalog.</p>
                             </td>

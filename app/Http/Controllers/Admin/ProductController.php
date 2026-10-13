@@ -16,22 +16,44 @@ class ProductController extends Controller
     public function index(Request $request): View
     {
         $search = $request->string('search')->trim()->toString();
+        $categoryId = $request->integer('category_id');
+        $status = $request->string('status')->toString();
+        $status = in_array($status, ['active', 'inactive'], true) ? $status : '';
+        $outOfStock = $request->boolean('out_of_stock');
 
         $products = Product::query()
             ->with('category:id,name')
-            ->when($search !== '', fn ($query) => $query->where('name', 'like', '%'.$search.'%'))
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('sku', 'like', '%'.$search.'%');
+                });
+            })
+            ->when($categoryId > 0, fn ($query) => $query->where('category_id', $categoryId))
+            ->when($status !== '', fn ($query) => $query->where('is_active', $status === 'active'))
+            ->when($outOfStock, fn ($query) => $query->where('stock', 0))
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.products.index', compact('products', 'search'));
+        return view('admin.products.index', [
+            'products' => $products,
+            'search' => $search,
+            'categoryId' => $categoryId,
+            'status' => $status,
+            'outOfStock' => $outOfStock,
+            'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
     public function create(): View
     {
         return view('admin.products.create', [
             'product' => new Product,
-            'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
+            'categories' => Category::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name', 'is_active']),
         ]);
     }
 
@@ -46,7 +68,13 @@ class ProductController extends Controller
     {
         return view('admin.products.edit', [
             'product' => $product,
-            'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
+            'categories' => Category::query()
+                ->where(function ($query) use ($product) {
+                    $query->where('is_active', true)
+                        ->orWhere('id', $product->category_id);
+                })
+                ->orderBy('name')
+                ->get(['id', 'name', 'is_active']),
         ]);
     }
 

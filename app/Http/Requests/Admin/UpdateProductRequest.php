@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -21,13 +22,20 @@ class UpdateProductRequest extends FormRequest
      */
     public function rules(): array
     {
+        $product = $this->route('product');
+        $categoryId = (int) $this->input('category_id');
+        $categoryRule = $categoryId === (int) $product->category_id
+            ? Rule::exists('categories', 'id')
+            : Rule::exists('categories', 'id')->where('is_active', true);
+
         return [
             'name' => ['required', 'string', 'max:255'],
+            'sku' => ['required', 'string', 'max:100', Rule::unique('products', 'sku')->ignore($product)],
             'description' => ['nullable', 'string', 'max:5000'],
-            'price' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
+            'price' => ['required', 'numeric', 'gt:0', 'max:99999999.99'],
             'stock' => ['required', 'integer', 'min:0'],
-            'is_active' => ['required', 'boolean'],
-            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'is_active' => ['sometimes', 'boolean'],
+            'category_id' => ['required', 'integer', $categoryRule],
         ];
     }
 }

@@ -5,6 +5,8 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\DB;
 
 it('renders shared create and edit forms for each resource', function () {
     $this->actingAs(User::factory()->create());
@@ -113,6 +115,7 @@ it('creates updates and deletes products', function () {
 
     $this->post(route('admin.products.store'), [
         'name' => 'Travel mug',
+        'sku' => 'MUG-001',
         'description' => 'Insulated steel mug',
         'price' => '18.50',
         'stock' => '5',
@@ -126,6 +129,7 @@ it('creates updates and deletes products', function () {
 
     $this->put(route('admin.products.update', $product), [
         'name' => 'Travel mug large',
+        'sku' => 'MUG-002',
         'description' => '',
         'price' => '20.00',
         'stock' => '0',
@@ -138,6 +142,7 @@ it('creates updates and deletes products', function () {
     $this->assertDatabaseHas('products', [
         'id' => $product->id,
         'name' => 'Travel mug large',
+        'sku' => 'MUG-002',
         'stock' => 0,
         'is_active' => false,
     ]);
@@ -162,6 +167,181 @@ it('searches and paginates products by name', function () {
 
     $this->assertSame(1, $response->viewData('products')->total());
     $this->assertSame(10, $this->get(route('admin.products.index'))->viewData('products')->perPage());
+});
+
+it('filters products by name or SKU, category, status, and stock together', function () {
+    $this->actingAs(User::factory()->create());
+    $category = Category::factory()->create(['name' => 'Garden']);
+    Product::factory()
+        ->count(12)
+        ->for($category)
+        ->state([
+            'name' => 'Garden gloves',
+            'is_active' => true,
+            'stock' => 0,
+        ])
+        ->sequence(...array_map(
+            fn (int $index): array => ['sku' => 'GARDEN-'.str_pad((string) $index, 2, '0', STR_PAD_LEFT)],
+            range(1, 12),
+        ))
+        ->create();
+    Product::factory()->for($category)->create([
+        'name' => 'Garden shears',
+        'sku' => 'SHEARS-001',
+        'is_active' => false,
+        'stock' => 0,
+    ]);
+    Product::factory()->create([
+        'name' => 'Garden gloves',
+        'sku' => 'OTHER-CATEGORY',
+        'is_active' => true,
+        'stock' => 0,
+    ]);
+    Product::factory()->for($category)->create([
+        'name' => 'Garden gloves',
+        'sku' => 'IN-STOCK',
+        'is_active' => true,
+        'stock' => 5,
+    ]);
+
+    $filters = [
+        'search' => 'GARDEN-',
+        'category_id' => $category->id,
+        'status' => 'active',
+        'out_of_stock' => '1',
+    ];
+
+    $response = $this->get(route('admin.products.index', $filters));
+
+    $response->assertOk()
+        ->assertSeeText('GARDEN-01')
+        ->assertDontSeeText('SHEARS-001')
+        ->assertDontSeeText('OTHER-CATEGORY')
+        ->assertDontSeeText('IN-STOCK');
+
+    $paginator = $response->viewData('products');
+    $this->assertSame(12, $paginator->total());
+    $this->assertSame(10, $paginator->perPage());
+
+    parse_str((string) parse_url($paginator->url(2), PHP_URL_QUERY), $pageTwoQuery);
+    $this->assertSame($filters['search'], $pageTwoQuery['search']);
+    $this->assertSame((string) $category->id, $pageTwoQuery['category_id']);
+    $this->assertSame('active', $pageTwoQuery['status']);
+    $this->assertSame('1', $pageTwoQuery['out_of_stock']);
+});
+
+it('validates SKU uniqueness and positive product prices', function () {
+    $this->actingAs(User::factory()->create());
+    $category = Category::factory()->create();
+    $inactiveCategory = Category::factory()->create(['is_active' => false]);
+    $existingProduct = Product::factory()->for($category)->create([
+        'sku' => 'UNIQUE-001',
+    ]);
+
+    $this->from(route('admin.products.create'))
+        ->post(route('admin.products.store'), [
+            'name' => 'Duplicate SKU item',
+            'sku' => 'UNIQUE-001',
+            'price' => '0',
+            'stock' => '0',
+            'is_active' => '1',
+            'category_id' => $category->id,
+        ])
+        ->assertRedirect(route('admin.products.create'))
+        ->assertSessionHasErrors(['sku', 'price']);
+
+    $this->from(route('admin.products.create'))
+        ->post(route('admin.products.store'), [
+            'name' => 'Invalid stock product',
+            'sku' => 'UNIQUE-002',
+            'price' => '15.00',
+            'stock' => '1.5',
+            'is_active' => '1',
+            'category_id' => $inactiveCategory->id,
+        ])
+        ->assertRedirect(route('admin.products.create'))
+        ->assertSessionHasErrors(['stock', 'category_id']);
+
+    $this->put(route('admin.products.update', $existingProduct), [
+        'name' => $existingProduct->name,
+        'sku' => 'UNIQUE-001',
+        'price' => '15.00',
+        'stock' => '0',
+        'is_active' => '1',
+        'category_id' => $category->id,
+    ])
+        ->assertRedirect(route('admin.products.index'))
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('products', [
+        'id' => $existingProduct->id,
+        'sku' => 'UNIQUE-001',
+    ]);
+});
+
+it('only offers active categories for new products and keeps an existing inactive category on edit', function () {
+    $this->actingAs(User::factory()->create());
+    $activeCategory = Category::factory()->create(['name' => 'Available', 'is_active' => true]);
+    $inactiveCategory = Category::factory()->create(['name' => 'Archived', 'is_active' => false]);
+    $product = Product::factory()->for($inactiveCategory)->create();
+
+    $this->get(route('admin.products.create'))
+        ->assertOk()
+        ->assertSeeText('Available')
+        ->assertDontSeeText('Archived')
+        ->assertSee('name="sku"', false)
+        ->assertSee('min="0.01"', false);
+
+    $this->get(route('admin.products.edit', $product))
+        ->assertOk()
+        ->assertSeeText('Available')
+        ->assertSeeText('Archived (inactive - current category)');
+
+    $this->put(route('admin.products.update', $product), [
+        'name' => $product->name,
+        'sku' => $product->sku,
+        'price' => $product->price,
+        'stock' => $product->stock,
+        'is_active' => '1',
+        'category_id' => $inactiveCategory->id,
+    ])->assertRedirect(route('admin.products.index'));
+
+    $this->put(route('admin.products.update', $product), [
+        'name' => $product->name,
+        'sku' => $product->sku,
+        'price' => $product->price,
+        'stock' => $product->stock,
+        'is_active' => '1',
+        'category_id' => $activeCategory->id,
+    ])->assertRedirect(route('admin.products.index'))
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('products', [
+        'id' => $product->id,
+        'category_id' => $activeCategory->id,
+    ]);
+});
+
+it('eager loads product categories with a fixed number of list queries', function () {
+    $this->actingAs(User::factory()->create());
+    Product::factory()->count(12)->create();
+    $productQueries = 0;
+    $categoryQueries = 0;
+
+    DB::listen(function (QueryExecuted $query) use (&$productQueries, &$categoryQueries): void {
+        if (str_starts_with(strtolower($query->sql), 'select') && str_contains($query->sql, 'products')) {
+            $productQueries++;
+        }
+
+        if (str_starts_with(strtolower($query->sql), 'select') && str_contains($query->sql, 'categories')) {
+            $categoryQueries++;
+        }
+    });
+
+    $this->get(route('admin.products.index'))->assertOk();
+
+    $this->assertSame(2, $productQueries);
+    $this->assertSame(2, $categoryQueries);
 });
 
 it('creates and updates customers without rejecting their unchanged email', function () {
