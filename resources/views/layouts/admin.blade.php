@@ -7,7 +7,7 @@
     <title>@yield('title', 'Admin') · {{ config('app.name', 'Dash Task') }}</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
-<body class="min-h-screen bg-slate-50 font-sans antialiased text-slate-900">
+<body class="admin-body min-h-screen bg-slate-50 font-sans antialiased text-slate-900">
     @php($user = auth()->user())
 
     <aside
@@ -55,7 +55,7 @@
     </aside>
 
     <div class="min-h-screen lg:pl-64">
-        <header class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur sm:px-6">
+        <header class="admin-topbar sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur sm:px-6">
             <div class="flex items-center gap-3">
                 <h1 class="text-base font-semibold text-slate-900 sm:text-lg">@yield('title', 'Dashboard')</h1>
             </div>
@@ -84,7 +84,7 @@
 
         @include('partials.flash')
 
-        <main class="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
+        <main class="admin-main mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
             @yield('content')
         </main>
     </div>

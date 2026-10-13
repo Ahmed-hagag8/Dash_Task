@@ -29,9 +29,9 @@ Route::middleware('auth')
     ->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::resource('categories', CategoryController::class);
-        Route::resource('products', ProductController::class);
+        Route::resource('categories', CategoryController::class)->except('show');
+        Route::resource('products', ProductController::class)->except('show');
         Route::resource('customers', CustomerController::class);
-        Route::resource('orders', OrderController::class);
-        Route::resource('reports', ReportController::class);
+        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     });
