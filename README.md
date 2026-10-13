@@ -31,3 +31,8 @@ php artisan make:model Customer -mf
 php artisan make:model Order -mf
 php artisan make:model OrderItem -mf
 php artisan make:migration create_reports_table
+
+## Step 3 
+
+Admin Email :'admin@dash.test'
+Admin Password : 'password'

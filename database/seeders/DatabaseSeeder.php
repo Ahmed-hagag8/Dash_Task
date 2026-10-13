@@ -8,11 +8,20 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+
+        User::updateOrCreate(
+            ['email' => 'admin@dash.test'],
+            ['name' => 'Admin', 'password' => Hash::make('password')],
+        );
+
+
         // ------------------------------------------------------------------
         // 1) Categories — exactly 6
         // ------------------------------------------------------------------
