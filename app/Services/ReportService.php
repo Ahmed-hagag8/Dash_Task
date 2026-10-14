@@ -98,13 +98,13 @@ class ReportService
                 $join->on('orders.id', '=', 'order_items.order_id')
                     ->where('orders.status', '!=', 'cancelled');
             })
-                        // first attempt syntax error
+            // first attempt syntax error
             // ->selectRaw('products.name as product_name')
             // ->where('(SUM(order_items.quantity)=0) as total_quantity_sold')
             // ->groupBy('products.id', 'products.name')
             // ->orderBy('total_quantity_sold')
             // ->get();
-            
+
             //second attempt empty table
             // ->selectRaw('products.name as product_name')
             // ->selectRaw('SUM(order_items.quantity) as total_quantity_sold')
