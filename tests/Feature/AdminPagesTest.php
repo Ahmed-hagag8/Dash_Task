@@ -54,7 +54,7 @@ it('renders the admin pages with their database data', function () {
     $this->get(route('admin.dashboard'))
         ->assertOk()
         ->assertSee('css/app.css')
-        ->assertSeeTextInOrder(['Revenue', '25.00', 'Recent orders'])
+        ->assertSeeTextInOrder(['Total products', '1', 'Latest orders'])
         ->assertSeeText('01 Oct 2026');
 
     $this->get(route('admin.categories.index'))
@@ -82,7 +82,7 @@ it('renders the admin pages with their database data', function () {
 
     $this->get(route('admin.reports.index'))
         ->assertOk()
-        ->assertSeeText('completed')
-        ->assertSeeText('cancelled')
-        ->assertSeeText('100.00');
+        ->assertSeeText('1. Total sales and orders per category')
+        ->assertSeeText('2. Top 5 customers by total spent')
+        ->assertSeeText('3. Customers who have never placed an order');
 });

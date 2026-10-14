@@ -3,26 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
-use App\Models\Order;
-use App\Models\Product;
+use App\Services\ReportService;
 use Illuminate\Contracts\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(private readonly ReportService $reportService) {}
+
     public function index(): View
     {
         return view('admin.dashboard', [
-            'stats' => [
-                'orders' => Order::count(),
-                'customers' => Customer::count(),
-                'products' => Product::count(),
-                'revenue' => Order::where('status', '!=', 'cancelled')->sum('total'),
-            ],
-            'recentOrders' => Order::with('customer')
-                ->latest('date')
-                ->limit(5)
-                ->get(),
+            'stats' => $this->reportService->dashboardStats(),
+            'recentOrders' => $this->reportService->recentOrders(),
+            'lowStockProducts' => $this->reportService->lowStockProducts(),
         ]);
     }
 }
