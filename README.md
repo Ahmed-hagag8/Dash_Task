@@ -37,13 +37,15 @@ php artisan make:migration create_reports_table
 Admin Email :'admin@dash.test'
 Admin Password : 'password'
 
-## there is a problem that the table products with total sales is empty (in proccess for fix) Periority high
+## problems
 
-## there is a problem that the count in the order form is not linked with the count in the DB stock (in progress for fix) less periority
+1-there is a problem that the table products with total sales is empty (in proccess for fix) Periority high
 
-## problem are fixed 
+2-there is a problem that the count in the order form is not linked with the count in the DB stock (in progress for fix) less periority
+
+3-problem are fixed 
 
 
-## test file problem found the the total products and out of stock products is writen with hard-coded-value expected 
+4-test file problem found the the total products and out of stock products is writen with hard-coded-value expected 
 
-## fix the test file und push the file
+5-fix the test file und push the file
