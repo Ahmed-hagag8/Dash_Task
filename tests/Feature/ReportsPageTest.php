@@ -10,8 +10,8 @@ it('matches the dashboard stats to the seeded data', function () {
 
     $stats = $reportService->dashboardStats();
 
-    expect($stats['total_products'])->toBe(40)
-        ->and($stats['out_of_stock_products'])->toBe(5)
+    expect($stats['total_products'])->toBe((int) DB::table('products')->count())
+        ->and($stats['out_of_stock_products'])->toBe((int) DB::table('products')->where('stock', 0)->count())
         ->and($stats['orders_today'])->toBe((int) DB::table('orders')->whereDate('date', today())->count())
         ->and($stats['sales_this_month'])->toBe((float) DB::table('order_items')
         ->join('orders', 'orders.id', '=', 'order_items.order_id')

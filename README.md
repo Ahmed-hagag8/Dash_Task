@@ -42,3 +42,8 @@ Admin Password : 'password'
 ## there is a problem that the count in the order form is not linked with the count in the DB stock (in progress for fix) less periority
 
 ## problem are fixed 
+
+
+## test file problem found the the total products and out of stock products is writen with hard-coded-value expected 
+
+## fix the test file und push the file
