@@ -37,5 +37,8 @@ php artisan make:migration create_reports_table
 Admin Email :'admin@dash.test'
 Admin Password : 'password'
 
-## there is a problem that the count in the order form is not linked with the count in the DB stock (in proccess for fix) periority low
 ## there is a problem that the table products with total sales is empty (in proccess for fix) Periority high
+
+## there is a problem that the count in the order form is not linked with the count in the DB stock (in progress for fix) less periority
+
+## problem are fixed 

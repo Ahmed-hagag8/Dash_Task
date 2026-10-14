@@ -111,6 +111,25 @@ it('creates orders using current catalog prices and reduces stock', function () 
         ->assertSeeText('37.75');
 });
 
+it('limits the order form quantity to the selected product stock', function () {
+    $this->actingAs(User::factory()->create());
+    $category = Category::factory()->create();
+    $product = Product::factory()->for($category)->create(['stock' => 5]);
+
+    $this->withSession([
+        '_old_input' => [
+            'items' => [
+                ['product_id' => $product->id, 'quantity' => 2],
+            ],
+        ],
+    ])
+        ->get(route('admin.orders.create'))
+        ->assertOk()
+        ->assertSee('data-stock="5"', false)
+        ->assertSee('max="5"', false)
+        ->assertSeeText('Available: 5 units.');
+});
+
 it('rejects an order with insufficient stock without saving or changing any stock', function () {
     $this->actingAs(User::factory()->create());
     $customer = Customer::factory()->create();
