@@ -21,7 +21,7 @@ it('matches the dashboard stats to the seeded data', function () {
         ->sum('order_items.line_total'));
 });
 
-it('matches the report queries in eloquent and raw SQL on the seeded data', function () {
+it('matches the report queries in eloquent and raw SQL on the seeded data', function() {
     $this->seed();
 
     $reportService = app(ReportService::class);
